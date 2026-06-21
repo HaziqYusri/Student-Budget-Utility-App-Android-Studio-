@@ -12,7 +12,8 @@ import com.example.studentbudgetutility.util.formatDate
 @Composable
 fun TransactionHistory(
     expenses: List<Expense>,
-    formatMoney: (Double) -> String
+    formatMoney: (Double) -> String,
+    onDeleteExpense: (Expense) -> Unit
 ) {
     val groupedExpenses = expenses
         .sortedByDescending { it.timestamp }
@@ -30,7 +31,8 @@ fun TransactionHistory(
             expensesForDate.forEach { expense ->
                 ExpenseRow(
                     expense = expense,
-                    formatMoney = formatMoney
+                    formatMoney = formatMoney,
+                    onDeleteExpense = onDeleteExpense
                 )
             }
         }

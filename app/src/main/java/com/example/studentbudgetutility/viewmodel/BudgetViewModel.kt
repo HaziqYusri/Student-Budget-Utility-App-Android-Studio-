@@ -32,6 +32,10 @@ class BudgetViewModel : ViewModel() {
         expenses = expenses + expense
     }
 
+    fun deleteExpense(expense: Expense) {
+        expenses = expenses.filterNot { it.id == expense.id }
+    }
+
     fun updateMonthlyBudget(newBudget: Double) {
         if (newBudget > 0) monthlyBudget = newBudget
     }
@@ -66,17 +70,12 @@ class BudgetViewModel : ViewModel() {
     }
 
     fun formatMoney(amount: Double): String {
-
         val converted = convertAmount(amount)
         val formatter = NumberFormat.getNumberInstance()
 
         return when (selectedCurrency) {
-
-            "UZS" ->
-                "${formatter.format(converted)} so'm"
-
-            else ->
-                "${currencySymbol()}${formatter.format(converted)}"
+            "UZS" -> "${formatter.format(converted)} so'm"
+            else -> "${currencySymbol()}${formatter.format(converted)}"
         }
     }
 }

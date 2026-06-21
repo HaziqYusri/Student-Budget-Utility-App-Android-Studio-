@@ -131,7 +131,8 @@ fun BudgetScreen(
                 item {
                     TransactionHistory(
                         expenses = expenses,
-                        formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
+                        formatMoney = { amount -> budgetViewModel.formatMoney(amount) },
+                        onDeleteExpense = { expense -> budgetViewModel.deleteExpense(expense) }
                     )
                 }
             }

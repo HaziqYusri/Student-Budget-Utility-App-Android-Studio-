@@ -14,6 +14,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +32,7 @@ fun CompactQuickAddCategory(
     onAddExpense: (Expense) -> Unit
 ) {
     var customAmountText by remember { mutableStateOf("") }
+    var showCustomInput by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -47,7 +49,8 @@ fun CompactQuickAddCategory(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 QuickAddButton("+5") {
                     onAddExpense(Expense(category, 5.0, System.currentTimeMillis()))
@@ -60,40 +63,54 @@ fun CompactQuickAddCategory(
                 QuickAddButton("+15") {
                     onAddExpense(Expense(category, 15.0, System.currentTimeMillis()))
                 }
+
+                TextButton(
+                    onClick = {
+                        showCustomInput = !showCustomInput
+                    },
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(vertical = 6.dp)
+                ) {
+                    Text(if (showCustomInput) "Hide" else "Custom")
+                }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = customAmountText,
-                    onValueChange = { customAmountText = it },
-                    label = { Text("Custom") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.weight(2f)
-                )
-
-                Button(
-                    onClick = {
-                        val amount = customAmountText.toDoubleOrNull()
-
-                        if (amount != null && amount > 0) {
-                            onAddExpense(
-                                Expense(
-                                    category = category,
-                                    amount = amount,
-                                    timestamp = System.currentTimeMillis()
-                                )
-                            )
-                            customAmountText = ""
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
+            if (showCustomInput) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Add")
+                    OutlinedTextField(
+                        value = customAmountText,
+                        onValueChange = { customAmountText = it },
+                        label = { Text("Custom SGD") },
+                        prefix = { Text("S$") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.weight(2f)
+                    )
+
+                    Button(
+                        onClick = {
+                            val amount = customAmountText.toDoubleOrNull()
+
+                            if (amount != null && amount > 0) {
+                                onAddExpense(
+                                    Expense(
+                                        category = category,
+                                        amount = amount,
+                                        timestamp = System.currentTimeMillis()
+                                    )
+                                )
+                                customAmountText = ""
+                                showCustomInput = false
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Add")
+                    }
                 }
             }
         }
