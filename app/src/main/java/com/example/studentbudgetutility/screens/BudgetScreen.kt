@@ -19,6 +19,7 @@ import com.example.studentbudgetutility.components.CompactQuickAddCategory
 import com.example.studentbudgetutility.components.RecentTransactionsHeader
 import com.example.studentbudgetutility.components.TransactionHistory
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
+import com.example.studentbudgetutility.components.BudgetStatusCard
 
 @Composable
 fun BudgetScreen(
@@ -87,6 +88,15 @@ fun BudgetScreen(
                     spent = spent,
                     monthlyBudget = monthlyBudget,
                     progress = budgetViewModel.budgetUsedProgress,
+                    formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
+                )
+            }
+
+            item {
+                BudgetStatusCard(
+                    spent = spent,
+                    monthlyBudget = monthlyBudget,
+                    remaining = remaining,
                     formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
                 )
             }
