@@ -20,6 +20,18 @@ class BudgetViewModel : ViewModel() {
     var expenses by mutableStateOf(sampleExpenses())
         private set
 
+    var conversionRates by mutableStateOf(
+        mapOf(
+            "SGD" to 1.0,
+            "USD" to 0.78,
+            "AUD" to 1.20,
+            "MYR" to 3.30,
+            "CNY" to 5.60,
+            "UZS" to 10300.0
+        )
+    )
+        private set
+
     val spent: Double
         get() = expenses.sumOf { it.amount }
 
@@ -40,6 +52,15 @@ class BudgetViewModel : ViewModel() {
         expenses = expenses.filterNot { it.id == expense.id }
     }
 
+    fun clearAllExpenses() {
+        expenses = emptyList()
+    }
+
+    fun resetSampleExpenses() {
+        expenses = emptyList()
+        expenses = sampleExpenses()
+    }
+
     fun updateMonthlyBudget(newBudget: Double) {
         if (newBudget > 0) monthlyBudget = newBudget
     }
@@ -48,16 +69,16 @@ class BudgetViewModel : ViewModel() {
         selectedCurrency = currency
     }
 
-    fun convertAmount(amount: Double): Double {
-        val rate = when (selectedCurrency) {
-            "SGD" -> 1.0
-            "USD" -> 0.78
-            "AUD" -> 1.20
-            "MYR" -> 3.30
-            "CNY" -> 5.60
-            "UZS" -> 10300.0
-            else -> 1.0
+    fun updateConversionRate(currency: String, newRate: Double) {
+        if (newRate > 0) {
+            conversionRates = conversionRates.toMutableMap().apply {
+                this[currency] = newRate
+            }
         }
+    }
+
+    fun convertAmount(amount: Double): Double {
+        val rate = conversionRates[selectedCurrency] ?: 1.0
         return amount * rate
     }
 
