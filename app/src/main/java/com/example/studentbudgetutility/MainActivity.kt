@@ -6,10 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.studentbudgetutility.ui.theme.StudentBudgetUtilityTheme
 
@@ -76,43 +78,45 @@ fun BudgetMainScreen() {
 
             item {
                 Text(
-                    text = "Quick Add Expense",
+                    text = "Quick Add Expenses",
                     style = MaterialTheme.typography.titleLarge
                 )
             }
 
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            expenses = expenses + Expense("Quick Expense", 5.0)
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("+$5")
+                QuickAddCategory(
+                    category = "Food",
+                    onAddExpense = { expense ->
+                        expenses = expenses + expense
                     }
+                )
+            }
 
-                    Button(
-                        onClick = {
-                            expenses = expenses + Expense("Quick Expense", 10.0)
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("+$10")
+            item {
+                QuickAddCategory(
+                    category = "Transport",
+                    onAddExpense = { expense ->
+                        expenses = expenses + expense
                     }
+                )
+            }
 
-                    Button(
-                        onClick = {
-                            expenses = expenses + Expense("Quick Expense", 15.0)
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("+$15")
+            item {
+                QuickAddCategory(
+                    category = "Entertainment",
+                    onAddExpense = { expense ->
+                        expenses = expenses + expense
                     }
-                }
+                )
+            }
+
+            item {
+                QuickAddCategory(
+                    category = "Shopping",
+                    onAddExpense = { expense ->
+                        expenses = expenses + expense
+                    }
+                )
             }
 
             item {
@@ -146,6 +150,84 @@ fun BudgetCard(title: String, amount: String) {
                 text = amount,
                 style = MaterialTheme.typography.headlineSmall
             )
+        }
+    }
+}
+
+@Composable
+fun QuickAddCategory(
+    category: String,
+    onAddExpense: (Expense) -> Unit
+) {
+    var customAmountText by remember { mutableStateOf("") }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = category,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { onAddExpense(Expense(category, 5.0)) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("+$5")
+                }
+
+                Button(
+                    onClick = { onAddExpense(Expense(category, 10.0)) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("+$10")
+                }
+
+                Button(
+                    onClick = { onAddExpense(Expense(category, 15.0)) },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("+$15")
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = customAmountText,
+                    onValueChange = { customAmountText = it },
+                    label = { Text("Custom amount") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(2f),
+                    singleLine = true
+                )
+
+                Button(
+                    onClick = {
+                        val customAmount = customAmountText.toDoubleOrNull()
+
+                        if (customAmount != null && customAmount > 0) {
+                            onAddExpense(Expense(category, customAmount))
+                            customAmountText = ""
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Add")
+                }
+            }
         }
     }
 }
