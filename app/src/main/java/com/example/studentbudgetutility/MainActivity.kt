@@ -12,10 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.studentbudgetutility.data.sampleExpenses
+import com.example.studentbudgetutility.model.Expense
 import com.example.studentbudgetutility.ui.theme.StudentBudgetUtilityTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.studentbudgetutility.util.formatDate
+import com.example.studentbudgetutility.util.formatTime
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -301,30 +302,4 @@ fun ExpenseRow(expense: Expense) {
             Text(text = "$${"%.2f".format(expense.amount)}")
         }
     }
-}
-
-data class Expense(
-    val category: String,
-    val amount: Double,
-    val timestamp: Long
-)
-
-fun sampleExpenses(): List<Expense> {
-    val now = System.currentTimeMillis()
-
-    return listOf(
-        Expense("Food", 15.0, now - 1000 * 60 * 10),
-        Expense("Transport", 8.0, now - 1000 * 60 * 30),
-        Expense("Coffee", 6.0, now - 1000 * 60 * 60)
-    )
-}
-
-fun formatDate(timestamp: Long): String {
-    val formatter = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault())
-    return formatter.format(Date(timestamp))
-}
-
-fun formatTime(timestamp: Long): String {
-    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-    return formatter.format(Date(timestamp))
 }
