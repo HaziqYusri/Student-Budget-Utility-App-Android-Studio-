@@ -6,13 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.studentbudgetutility.data.sampleExpenses
 import com.example.studentbudgetutility.model.Expense
+import java.text.NumberFormat
 
 class BudgetViewModel : ViewModel() {
 
     var monthlyBudget by mutableStateOf(1000.0)
         private set
 
-    var selectedCurrency by mutableStateOf("USD")
+    var selectedCurrency by mutableStateOf("SGD")
         private set
 
     var expenses by mutableStateOf(sampleExpenses())
@@ -41,11 +42,12 @@ class BudgetViewModel : ViewModel() {
 
     fun convertAmount(amount: Double): Double {
         val rate = when (selectedCurrency) {
-            "USD" -> 1.0
-            "AUD" -> 1.53
-            "MYR" -> 4.70
-            "CNY" -> 7.25
-            "UZS" -> 12650.0
+            "SGD" -> 1.0
+            "USD" -> 0.78
+            "AUD" -> 1.20
+            "MYR" -> 3.30
+            "CNY" -> 5.60
+            "UZS" -> 10300.0
             else -> 1.0
         }
         return amount * rate
@@ -53,16 +55,28 @@ class BudgetViewModel : ViewModel() {
 
     fun currencySymbol(): String {
         return when (selectedCurrency) {
+            "SGD" -> "S$"
             "USD" -> "$"
             "AUD" -> "A$"
             "MYR" -> "RM"
             "CNY" -> "¥"
-            "UZS" -> "so'm "
-            else -> "$"
+            "UZS" -> ""
+            else -> "S$"
         }
     }
 
     fun formatMoney(amount: Double): String {
-        return "${currencySymbol()}${"%.2f".format(convertAmount(amount))}"
+
+        val converted = convertAmount(amount)
+        val formatter = NumberFormat.getNumberInstance()
+
+        return when (selectedCurrency) {
+
+            "UZS" ->
+                "${formatter.format(converted)} so'm"
+
+            else ->
+                "${currencySymbol()}${formatter.format(converted)}"
+        }
     }
 }

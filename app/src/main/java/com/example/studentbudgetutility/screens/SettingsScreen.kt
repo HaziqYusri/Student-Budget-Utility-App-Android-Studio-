@@ -40,10 +40,16 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.headlineSmall
             )
 
+            Text(
+                text = "Monthly budget is entered in SGD",
+                style = MaterialTheme.typography.labelLarge
+            )
+
             OutlinedTextField(
                 value = budgetText,
                 onValueChange = { budgetText = it },
-                label = { Text("Monthly Budget") },
+                label = { Text("Monthly Budget (SGD)") },
+                prefix = { Text("S$") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -63,7 +69,7 @@ fun SettingsScreen(
             }
 
             Text(
-                text = "Currency",
+                text = "Display Currency",
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -89,7 +95,8 @@ fun CurrencySelector(
     selectedCurrency: String,
     onCurrencySelected: (String) -> Unit
 ) {
-    val currencies = listOf("USD", "AUD", "MYR", "CNY", "UZS")
+    val currencies = listOf("SGD", "USD", "AUD", "MYR", "CNY", "UZS")
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
