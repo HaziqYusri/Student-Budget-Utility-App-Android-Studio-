@@ -130,6 +130,15 @@ fun SettingsScreen(
             }
 
             item {
+                if (budgetViewModel.settingsMessage.isNotBlank()) {
+                    Text(
+                        text = budgetViewModel.settingsMessage,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            item {
                 Button(
                     onClick = onBackToHome,
                     modifier = Modifier.fillMaxWidth()

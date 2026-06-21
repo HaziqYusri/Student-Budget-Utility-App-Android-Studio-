@@ -32,6 +32,9 @@ class BudgetViewModel : ViewModel() {
     )
         private set
 
+    var settingsMessage by mutableStateOf("")
+        private set
+
     val spent: Double
         get() = expenses.sumOf { it.amount }
 
@@ -54,15 +57,19 @@ class BudgetViewModel : ViewModel() {
 
     fun clearAllExpenses() {
         expenses = emptyList()
+        settingsMessage = "All transactions cleared."
     }
 
     fun resetSampleExpenses() {
-        expenses = emptyList()
         expenses = sampleExpenses()
+        settingsMessage = "Sample transactions restored."
     }
 
     fun updateMonthlyBudget(newBudget: Double) {
-        if (newBudget > 0) monthlyBudget = newBudget
+        if (newBudget > 0) {
+            monthlyBudget = newBudget
+            settingsMessage = "Budget updated."
+        }
     }
 
     fun updateCurrency(currency: String) {
