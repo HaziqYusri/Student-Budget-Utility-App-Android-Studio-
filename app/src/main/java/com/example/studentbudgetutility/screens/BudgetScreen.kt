@@ -11,6 +11,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxWidth
 import com.example.studentbudgetutility.components.BudgetCard
 import com.example.studentbudgetutility.components.CompactQuickAddCategory
 import com.example.studentbudgetutility.components.RecentTransactionsHeader
@@ -19,7 +21,8 @@ import com.example.studentbudgetutility.viewmodel.BudgetViewModel
 
 @Composable
 fun BudgetScreen(
-    budgetViewModel: BudgetViewModel = viewModel()
+    budgetViewModel: BudgetViewModel,
+    onOpenSettings: () -> Unit
 ) {
     val expenses = budgetViewModel.expenses
     val monthlyBudget = budgetViewModel.monthlyBudget
@@ -44,6 +47,15 @@ fun BudgetScreen(
                     text = "Student Budget Utility",
                     style = MaterialTheme.typography.headlineSmall
                 )
+            }
+
+            item {
+                Button(
+                    onClick = onOpenSettings,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Open Settings")
+                }
             }
 
             item {

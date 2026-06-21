@@ -12,6 +12,9 @@ class BudgetViewModel : ViewModel() {
     var monthlyBudget by mutableStateOf(1000.0)
         private set
 
+    var selectedCurrency by mutableStateOf("USD")
+        private set
+
     var expenses by mutableStateOf(sampleExpenses())
         private set
 
@@ -32,5 +35,9 @@ class BudgetViewModel : ViewModel() {
         if (newBudget > 0) {
             monthlyBudget = newBudget
         }
+    }
+
+    fun updateCurrency(currency: String) {
+        selectedCurrency = currency
     }
 }
