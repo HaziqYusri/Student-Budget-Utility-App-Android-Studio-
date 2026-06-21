@@ -21,6 +21,7 @@ import com.example.studentbudgetutility.components.TransactionHistory
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
 import com.example.studentbudgetutility.components.BudgetStatusCard
 import com.example.studentbudgetutility.components.DailySpendingCard
+import com.example.studentbudgetutility.components.SpendingInsightsCard
 
 @Composable
 fun BudgetScreen(
@@ -105,6 +106,13 @@ fun BudgetScreen(
             item {
                 DailySpendingCard(
                     safeDailySpend = safeDailySpend,
+                    formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
+                )
+            }
+
+            item {
+                SpendingInsightsCard(
+                    expenses = expenses,
                     formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
                 )
             }
