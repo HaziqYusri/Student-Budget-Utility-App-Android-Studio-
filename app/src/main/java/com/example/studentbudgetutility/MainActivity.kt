@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.studentbudgetutility.ui.theme.StudentBudgetUtilityTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,13 +33,11 @@ fun BudgetMainScreen() {
     val monthlyBudget = 1000.0
 
     var expenses by remember {
-        mutableStateOf(
-            listOf(
-                Expense("Food", 15.0),
-                Expense("Transport", 8.0),
-                Expense("Coffee", 6.0)
-            )
-        )
+        mutableStateOf(sampleExpenses())
+    }
+
+    var showHistory by remember {
+        mutableStateOf(true)
     }
 
     val spent = expenses.sumOf { it.amount }
@@ -49,14 +49,13 @@ fun BudgetMainScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
                 Text(
                     text = "Student Budget Utility",
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineSmall
                 )
             }
 
@@ -84,50 +83,41 @@ fun BudgetMainScreen() {
             }
 
             item {
-                QuickAddCategory(
-                    category = "Food",
-                    onAddExpense = { expense ->
-                        expenses = expenses + expense
-                    }
-                )
+                CompactQuickAddCategory("Food") {
+                    expenses = expenses + it
+                }
             }
 
             item {
-                QuickAddCategory(
-                    category = "Transport",
-                    onAddExpense = { expense ->
-                        expenses = expenses + expense
-                    }
-                )
+                CompactQuickAddCategory("Transport") {
+                    expenses = expenses + it
+                }
             }
 
             item {
-                QuickAddCategory(
-                    category = "Entertainment",
-                    onAddExpense = { expense ->
-                        expenses = expenses + expense
-                    }
-                )
+                CompactQuickAddCategory("Entertainment") {
+                    expenses = expenses + it
+                }
             }
 
             item {
-                QuickAddCategory(
-                    category = "Shopping",
-                    onAddExpense = { expense ->
-                        expenses = expenses + expense
-                    }
-                )
+                CompactQuickAddCategory("Shopping") {
+                    expenses = expenses + it
+                }
             }
 
             item {
-                Text(
-                    text = "Recent Expenses",
-                    style = MaterialTheme.typography.headlineSmall
+                RecentTransactionsHeader(
+                    count = expenses.size,
+                    showHistory = showHistory,
+                    onToggle = { showHistory = !showHistory }
                 )
             }
 
-            items(expenses) { expense ->
-                ExpenseRow(expense)
+            if (showHistory) {
+                item {
+                    TransactionHistory(expenses)
+                }
             }
         }
     }
@@ -137,25 +127,25 @@ fun BudgetMainScreen() {
 fun BudgetCard(title: String, amount: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.labelMedium
             )
             Text(
                 text = amount,
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.titleLarge
             )
         }
     }
 }
 
 @Composable
-fun QuickAddCategory(
+fun CompactQuickAddCategory(
     category: String,
     onAddExpense: (Expense) -> Unit
 ) {
@@ -163,11 +153,11 @@ fun QuickAddCategory(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = category,
@@ -176,50 +166,47 @@ fun QuickAddCategory(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Button(
-                    onClick = { onAddExpense(Expense(category, 5.0)) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("+$5")
+                QuickAddButton("+5") {
+                    onAddExpense(Expense(category, 5.0, System.currentTimeMillis()))
                 }
 
-                Button(
-                    onClick = { onAddExpense(Expense(category, 10.0)) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("+$10")
+                QuickAddButton("+10") {
+                    onAddExpense(Expense(category, 10.0, System.currentTimeMillis()))
                 }
 
-                Button(
-                    onClick = { onAddExpense(Expense(category, 15.0)) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("+$15")
+                QuickAddButton("+15") {
+                    onAddExpense(Expense(category, 15.0, System.currentTimeMillis()))
                 }
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = customAmountText,
                     onValueChange = { customAmountText = it },
-                    label = { Text("Custom amount") },
+                    label = { Text("Custom") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.weight(2f),
-                    singleLine = true
+                    singleLine = true,
+                    modifier = Modifier.weight(2f)
                 )
 
                 Button(
                     onClick = {
-                        val customAmount = customAmountText.toDoubleOrNull()
+                        val amount = customAmountText.toDoubleOrNull()
 
-                        if (customAmount != null && customAmount > 0) {
-                            onAddExpense(Expense(category, customAmount))
+                        if (amount != null && amount > 0) {
+                            onAddExpense(
+                                Expense(
+                                    category = category,
+                                    amount = amount,
+                                    timestamp = System.currentTimeMillis()
+                                )
+                            )
                             customAmountText = ""
                         }
                     },
@@ -233,18 +220,84 @@ fun QuickAddCategory(
 }
 
 @Composable
+fun RowScope.QuickAddButton(
+    label: String,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.weight(1f),
+        contentPadding = PaddingValues(vertical = 6.dp)
+    ) {
+        Text(label)
+    }
+}
+
+@Composable
+fun RecentTransactionsHeader(
+    count: Int,
+    showHistory: Boolean,
+    onToggle: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Recent Transactions ($count)",
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        TextButton(onClick = onToggle) {
+            Text(if (showHistory) "Hide" else "Show")
+        }
+    }
+}
+
+@Composable
+fun TransactionHistory(expenses: List<Expense>) {
+    val groupedExpenses = expenses
+        .sortedByDescending { it.timestamp }
+        .groupBy { formatDate(it.timestamp) }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        groupedExpenses.forEach { (date, expensesForDate) ->
+            Text(
+                text = date,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            expensesForDate.forEach { expense ->
+                ExpenseRow(expense)
+            }
+        }
+    }
+}
+
+@Composable
 fun ExpenseRow(expense: Expense) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = expense.category)
+            Column {
+                Text(text = expense.category)
+                Text(
+                    text = formatTime(expense.timestamp),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+
             Text(text = "$${"%.2f".format(expense.amount)}")
         }
     }
@@ -252,5 +305,26 @@ fun ExpenseRow(expense: Expense) {
 
 data class Expense(
     val category: String,
-    val amount: Double
+    val amount: Double,
+    val timestamp: Long
 )
+
+fun sampleExpenses(): List<Expense> {
+    val now = System.currentTimeMillis()
+
+    return listOf(
+        Expense("Food", 15.0, now - 1000 * 60 * 10),
+        Expense("Transport", 8.0, now - 1000 * 60 * 30),
+        Expense("Coffee", 6.0, now - 1000 * 60 * 60)
+    )
+}
+
+fun formatDate(timestamp: Long): String {
+    val formatter = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault())
+    return formatter.format(Date(timestamp))
+}
+
+fun formatTime(timestamp: Long): String {
+    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+    return formatter.format(Date(timestamp))
+}
