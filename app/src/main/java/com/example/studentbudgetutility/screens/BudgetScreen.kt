@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.studentbudgetutility.components.BudgetCard
+import com.example.studentbudgetutility.components.BudgetProgressCard
 import com.example.studentbudgetutility.components.CategorySummary
 import com.example.studentbudgetutility.components.CompactQuickAddCategory
 import com.example.studentbudgetutility.components.RecentTransactionsHeader
@@ -78,6 +79,15 @@ fun BudgetScreen(
                 Text(
                     text = "Selected Currency: ${budgetViewModel.selectedCurrency}",
                     style = MaterialTheme.typography.labelLarge
+                )
+            }
+
+            item {
+                BudgetProgressCard(
+                    spent = spent,
+                    monthlyBudget = monthlyBudget,
+                    progress = budgetViewModel.budgetUsedProgress,
+                    formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
                 )
             }
 
