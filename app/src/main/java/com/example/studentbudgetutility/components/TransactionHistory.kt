@@ -10,7 +10,10 @@ import com.example.studentbudgetutility.model.Expense
 import com.example.studentbudgetutility.util.formatDate
 
 @Composable
-fun TransactionHistory(expenses: List<Expense>) {
+fun TransactionHistory(
+    expenses: List<Expense>,
+    formatMoney: (Double) -> String
+) {
     val groupedExpenses = expenses
         .sortedByDescending { it.timestamp }
         .groupBy { formatDate(it.timestamp) }
@@ -25,7 +28,10 @@ fun TransactionHistory(expenses: List<Expense>) {
             )
 
             expensesForDate.forEach { expense ->
-                ExpenseRow(expense)
+                ExpenseRow(
+                    expense = expense,
+                    formatMoney = formatMoney
+                )
             }
         }
     }

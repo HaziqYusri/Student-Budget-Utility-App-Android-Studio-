@@ -17,7 +17,10 @@ import com.example.studentbudgetutility.model.Expense
 import com.example.studentbudgetutility.util.formatTime
 
 @Composable
-fun ExpenseRow(expense: Expense) {
+fun ExpenseRow(
+    expense: Expense,
+    formatMoney: (Double) -> String
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -37,7 +40,7 @@ fun ExpenseRow(expense: Expense) {
                 )
             }
 
-            Text(text = "$${"%.2f".format(expense.amount)}")
+            Text(text = formatMoney(expense.amount))
         }
     }
 }

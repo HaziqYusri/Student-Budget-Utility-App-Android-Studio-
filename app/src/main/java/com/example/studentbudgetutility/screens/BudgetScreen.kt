@@ -129,7 +129,10 @@ fun BudgetScreen(
 
             if (showHistory) {
                 item {
-                    TransactionHistory(expenses)
+                    TransactionHistory(
+                        expenses = expenses,
+                        formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
+                    )
                 }
             }
         }
