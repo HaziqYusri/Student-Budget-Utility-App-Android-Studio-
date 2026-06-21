@@ -18,6 +18,7 @@ import com.example.studentbudgetutility.components.CompactQuickAddCategory
 import com.example.studentbudgetutility.components.RecentTransactionsHeader
 import com.example.studentbudgetutility.components.TransactionHistory
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
+import com.example.studentbudgetutility.components.CategorySummary
 
 @Composable
 fun BudgetScreen(
@@ -73,7 +74,9 @@ fun BudgetScreen(
             item {
                 BudgetCard("Safe Daily Spend", "$${"%.2f".format(safeDailySpend)}")
             }
-
+            item {
+                CategorySummary(expenses)
+            }
             item {
                 Text(
                     text = "Quick Add Expenses",

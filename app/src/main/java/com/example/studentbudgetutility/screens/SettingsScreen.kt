@@ -89,8 +89,7 @@ fun CurrencySelector(
     selectedCurrency: String,
     onCurrencySelected: (String) -> Unit
 ) {
-    val currencies = listOf("USD", "AUD", "MYR", "CNY")
-
+    val currencies = listOf("USD", "AUD", "MYR", "CNY", "UZS")
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
