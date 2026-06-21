@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,18 +28,22 @@ class MainActivity : ComponentActivity() {
 fun BudgetMainScreen() {
     val monthlyBudget = 1000.0
 
-    val expenses = listOf(
-        Expense("Food", 15.0),
-        Expense("Transport", 8.0),
-        Expense("Coffee", 6.0)
-    )
+    var expenses by remember {
+        mutableStateOf(
+            listOf(
+                Expense("Food", 15.0),
+                Expense("Transport", 8.0),
+                Expense("Coffee", 6.0)
+            )
+        )
+    }
 
     val spent = expenses.sumOf { it.amount }
     val remaining = monthlyBudget - spent
     val safeDailySpend = remaining / 30
 
     Scaffold { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -45,24 +51,80 @@ fun BudgetMainScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Student Budget Utility",
-                style = MaterialTheme.typography.headlineMedium
-            )
+            item {
+                Text(
+                    text = "Student Budget Utility",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
 
-            BudgetCard("Monthly Budget", "$${"%.2f".format(monthlyBudget)}")
-            BudgetCard("Spent This Month", "$${"%.2f".format(spent)}")
-            BudgetCard("Remaining Balance", "$${"%.2f".format(remaining)}")
-            BudgetCard("Safe Daily Spend", "$${"%.2f".format(safeDailySpend)}")
+            item {
+                BudgetCard("Monthly Budget", "$${"%.2f".format(monthlyBudget)}")
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                BudgetCard("Spent This Month", "$${"%.2f".format(spent)}")
+            }
 
-            Text(
-                text = "Recent Expenses",
-                style = MaterialTheme.typography.headlineSmall
-            )
+            item {
+                BudgetCard("Remaining Balance", "$${"%.2f".format(remaining)}")
+            }
 
-            ExpenseList(expenses)
+            item {
+                BudgetCard("Safe Daily Spend", "$${"%.2f".format(safeDailySpend)}")
+            }
+
+            item {
+                Text(
+                    text = "Quick Add Expense",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            expenses = expenses + Expense("Quick Expense", 5.0)
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("+$5")
+                    }
+
+                    Button(
+                        onClick = {
+                            expenses = expenses + Expense("Quick Expense", 10.0)
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("+$10")
+                    }
+
+                    Button(
+                        onClick = {
+                            expenses = expenses + Expense("Quick Expense", 15.0)
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("+$15")
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = "Recent Expenses",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+
+            items(expenses) { expense ->
+                ExpenseRow(expense)
+            }
         }
     }
 }
@@ -89,24 +151,19 @@ fun BudgetCard(title: String, amount: String) {
 }
 
 @Composable
-fun ExpenseList(expenses: List<Expense>) {
+fun ExpenseRow(expense: Expense) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            expenses.forEach { expense ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = expense.category)
-                    Text(text = "$${"%.2f".format(expense.amount)}")
-                }
-            }
+            Text(text = expense.category)
+            Text(text = "$${"%.2f".format(expense.amount)}")
         }
     }
 }
