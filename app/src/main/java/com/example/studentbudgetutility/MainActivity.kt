@@ -25,7 +25,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BudgetMainScreen() {
     val monthlyBudget = 1000.0
-    val spent = 250.0
+
+    val expenses = listOf(
+        Expense("Food", 15.0),
+        Expense("Transport", 8.0),
+        Expense("Coffee", 6.0)
+    )
+
+    val spent = expenses.sumOf { it.amount }
     val remaining = monthlyBudget - spent
     val safeDailySpend = remaining / 30
 
@@ -43,10 +50,19 @@ fun BudgetMainScreen() {
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            BudgetCard("Monthly Budget", "$$monthlyBudget")
-            BudgetCard("Spent This Month", "$$spent")
-            BudgetCard("Remaining Balance", "$$remaining")
+            BudgetCard("Monthly Budget", "$${"%.2f".format(monthlyBudget)}")
+            BudgetCard("Spent This Month", "$${"%.2f".format(spent)}")
+            BudgetCard("Remaining Balance", "$${"%.2f".format(remaining)}")
             BudgetCard("Safe Daily Spend", "$${"%.2f".format(safeDailySpend)}")
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Recent Expenses",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            ExpenseList(expenses)
         }
     }
 }
@@ -71,3 +87,31 @@ fun BudgetCard(title: String, amount: String) {
         }
     }
 }
+
+@Composable
+fun ExpenseList(expenses: List<Expense>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            expenses.forEach { expense ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = expense.category)
+                    Text(text = "$${"%.2f".format(expense.amount)}")
+                }
+            }
+        }
+    }
+}
+
+data class Expense(
+    val category: String,
+    val amount: Double
+)
