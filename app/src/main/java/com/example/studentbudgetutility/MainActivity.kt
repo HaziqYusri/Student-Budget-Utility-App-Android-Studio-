@@ -3,45 +3,71 @@ package com.example.studentbudgetutility
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.studentbudgetutility.ui.theme.StudentBudgetUtilityTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             StudentBudgetUtilityTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                BudgetMainScreen()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun BudgetMainScreen() {
+    val monthlyBudget = 1000.0
+    val spent = 250.0
+    val remaining = monthlyBudget - spent
+    val safeDailySpend = remaining / 30
+
+    Scaffold { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Student Budget Utility",
+                style = MaterialTheme.typography.headlineMedium
+            )
+
+            BudgetCard("Monthly Budget", "$$monthlyBudget")
+            BudgetCard("Spent This Month", "$$spent")
+            BudgetCard("Remaining Balance", "$$remaining")
+            BudgetCard("Safe Daily Spend", "$${"%.2f".format(safeDailySpend)}")
+        }
+    }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    StudentBudgetUtilityTheme {
-        Greeting("Android")
+fun BudgetCard(title: String, amount: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = amount,
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
     }
 }
