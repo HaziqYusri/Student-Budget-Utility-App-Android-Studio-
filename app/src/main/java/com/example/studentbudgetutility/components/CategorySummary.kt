@@ -1,24 +1,22 @@
 package com.example.studentbudgetutility.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.studentbudgetutility.model.Expense
 
 @Composable
-fun CategorySummary(expenses: List<Expense>) {
+fun CategorySummary(
+    expenses: List<Expense>,
+    formatMoney: (Double) -> String
+) {
     val categoryTotals = expenses
         .groupBy { it.category }
         .mapValues { entry -> entry.value.sumOf { it.amount } }
+
+    val totalSpent = expenses.sumOf { it.amount }.coerceAtLeast(1.0)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -26,28 +24,44 @@ fun CategorySummary(expenses: List<Expense>) {
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
                 text = "Category Summary",
                 style = MaterialTheme.typography.titleLarge
             )
 
-            CategorySummaryRow("Food", categoryTotals["Food"] ?: 0.0)
-            CategorySummaryRow("Transport", categoryTotals["Transport"] ?: 0.0)
-            CategorySummaryRow("Entertainment", categoryTotals["Entertainment"] ?: 0.0)
-            CategorySummaryRow("Shopping", categoryTotals["Shopping"] ?: 0.0)
+            CategoryProgressRow("Food", categoryTotals["Food"] ?: 0.0, totalSpent, formatMoney)
+            CategoryProgressRow("Transport", categoryTotals["Transport"] ?: 0.0, totalSpent, formatMoney)
+            CategoryProgressRow("Entertainment", categoryTotals["Entertainment"] ?: 0.0, totalSpent, formatMoney)
+            CategoryProgressRow("Shopping", categoryTotals["Shopping"] ?: 0.0, totalSpent, formatMoney)
         }
     }
 }
 
 @Composable
-fun CategorySummaryRow(category: String, amount: Double) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+fun CategoryProgressRow(
+    category: String,
+    amount: Double,
+    totalSpent: Double,
+    formatMoney: (Double) -> String
+) {
+    val progress = (amount / totalSpent).toFloat().coerceIn(0f, 1f)
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(text = category)
-        Text(text = "$${"%.2f".format(amount)}")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = category)
+            Text(text = formatMoney(amount))
+        }
+
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

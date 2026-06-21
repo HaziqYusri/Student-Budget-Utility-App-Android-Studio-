@@ -32,12 +32,37 @@ class BudgetViewModel : ViewModel() {
     }
 
     fun updateMonthlyBudget(newBudget: Double) {
-        if (newBudget > 0) {
-            monthlyBudget = newBudget
-        }
+        if (newBudget > 0) monthlyBudget = newBudget
     }
 
     fun updateCurrency(currency: String) {
         selectedCurrency = currency
+    }
+
+    fun convertAmount(amount: Double): Double {
+        val rate = when (selectedCurrency) {
+            "USD" -> 1.0
+            "AUD" -> 1.53
+            "MYR" -> 4.70
+            "CNY" -> 7.25
+            "UZS" -> 12650.0
+            else -> 1.0
+        }
+        return amount * rate
+    }
+
+    fun currencySymbol(): String {
+        return when (selectedCurrency) {
+            "USD" -> "$"
+            "AUD" -> "A$"
+            "MYR" -> "RM"
+            "CNY" -> "¥"
+            "UZS" -> "so'm "
+            else -> "$"
+        }
+    }
+
+    fun formatMoney(amount: Double): String {
+        return "${currencySymbol()}${"%.2f".format(convertAmount(amount))}"
     }
 }

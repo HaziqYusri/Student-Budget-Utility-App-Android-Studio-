@@ -2,23 +2,22 @@ package com.example.studentbudgetutility.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material3.Button
-import androidx.compose.foundation.layout.fillMaxWidth
 import com.example.studentbudgetutility.components.BudgetCard
+import com.example.studentbudgetutility.components.CategorySummary
 import com.example.studentbudgetutility.components.CompactQuickAddCategory
 import com.example.studentbudgetutility.components.RecentTransactionsHeader
 import com.example.studentbudgetutility.components.TransactionHistory
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
-import com.example.studentbudgetutility.components.CategorySummary
 
 @Composable
 fun BudgetScreen(
@@ -60,23 +59,35 @@ fun BudgetScreen(
             }
 
             item {
-                BudgetCard("Monthly Budget", "$${"%.2f".format(monthlyBudget)}")
+                BudgetCard("Monthly Budget", budgetViewModel.formatMoney(monthlyBudget))
             }
 
             item {
-                BudgetCard("Spent This Month", "$${"%.2f".format(spent)}")
+                BudgetCard("Spent This Month", budgetViewModel.formatMoney(spent))
             }
 
             item {
-                BudgetCard("Remaining Balance", "$${"%.2f".format(remaining)}")
+                BudgetCard("Remaining Balance", budgetViewModel.formatMoney(remaining))
             }
 
             item {
-                BudgetCard("Safe Daily Spend", "$${"%.2f".format(safeDailySpend)}")
+                BudgetCard("Safe Daily Spend", budgetViewModel.formatMoney(safeDailySpend))
             }
+
             item {
-                CategorySummary(expenses)
+                Text(
+                    text = "Selected Currency: ${budgetViewModel.selectedCurrency}",
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
+
+            item {
+                CategorySummary(
+                    expenses = expenses,
+                    formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
+                )
+            }
+
             item {
                 Text(
                     text = "Quick Add Expenses",
