@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.studentbudgetutility.data.sampleExpenses
 import com.example.studentbudgetutility.model.Expense
 import java.text.NumberFormat
+import java.util.Locale
 
 class BudgetViewModel : ViewModel() {
 
@@ -27,6 +28,9 @@ class BudgetViewModel : ViewModel() {
 
     val safeDailySpend: Double
         get() = remaining / 30
+
+    val budgetUsedProgress: Float
+        get() = (spent / monthlyBudget).toFloat().coerceIn(0f, 1f)
 
     fun addExpense(expense: Expense) {
         expenses = expenses + expense
@@ -71,11 +75,16 @@ class BudgetViewModel : ViewModel() {
 
     fun formatMoney(amount: Double): String {
         val converted = convertAmount(amount)
-        val formatter = NumberFormat.getNumberInstance()
 
-        return when (selectedCurrency) {
-            "UZS" -> "${formatter.format(converted)} so'm"
-            else -> "${currencySymbol()}${formatter.format(converted)}"
+        return if (selectedCurrency == "UZS") {
+            val formatter = NumberFormat.getNumberInstance(Locale.getDefault())
+            formatter.maximumFractionDigits = 0
+            "${formatter.format(converted)} so'm"
+        } else {
+            val formatter = NumberFormat.getNumberInstance(Locale.getDefault())
+            formatter.minimumFractionDigits = 2
+            formatter.maximumFractionDigits = 2
+            "${currencySymbol()}${formatter.format(converted)}"
         }
     }
 }
