@@ -1,5 +1,6 @@
 package com.example.studentbudgetutility.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +29,10 @@ fun SettingsScreen(
     budgetViewModel: BudgetViewModel,
     onBackToHome: () -> Unit
 ) {
+    BackHandler {
+        onBackToHome()
+    }
+
     var budgetText by remember {
         mutableStateOf(budgetViewModel.monthlyBudget.toString())
     }
@@ -48,10 +54,20 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    text = "Settings",
-                    style = MaterialTheme.typography.headlineSmall
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Settings",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+
+                    TextButton(onClick = onBackToHome) {
+                        Text("← Home")
+                    }
+                }
             }
 
             item {
