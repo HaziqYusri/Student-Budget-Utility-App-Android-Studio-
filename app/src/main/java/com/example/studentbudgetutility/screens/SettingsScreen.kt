@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -20,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
-import androidx.compose.foundation.lazy.LazyColumn
 
 @Composable
 fun SettingsScreen(
@@ -29,6 +29,14 @@ fun SettingsScreen(
 ) {
     var budgetText by remember {
         mutableStateOf(budgetViewModel.monthlyBudget.toString())
+    }
+
+    var cycleLengthText by remember {
+        mutableStateOf(budgetViewModel.cycleLengthDays.toString())
+    }
+
+    var startOffsetText by remember {
+        mutableStateOf("0")
     }
 
     Scaffold { paddingValues ->
@@ -76,6 +84,82 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Save Budget")
+                }
+            }
+
+            item {
+                Text(
+                    text = "Budget Cycle",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            item {
+                Text(
+                    text = "Current cycle starts: ${budgetViewModel.formattedCycleStartDate()}\nCurrent cycle ends: ${budgetViewModel.formattedCycleEndDate()}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = cycleLengthText,
+                    onValueChange = { cycleLengthText = it },
+                    label = { Text("Cycle Length (days)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Button(
+                    onClick = {
+                        val days = cycleLengthText.toIntOrNull()
+                        if (days != null && days > 0) {
+                            budgetViewModel.updateCycleLength(days)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save Cycle Length")
+                }
+            }
+
+            item {
+                OutlinedTextField(
+                    value = startOffsetText,
+                    onValueChange = { startOffsetText = it },
+                    label = { Text("Cycle Start Offset From Today") },
+                    suffix = { Text("days") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                Button(
+                    onClick = {
+                        val daysFromToday = startOffsetText.toIntOrNull()
+                        if (daysFromToday != null) {
+                            budgetViewModel.updateCycleStartDate(daysFromToday)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save Cycle Start Date")
+                }
+            }
+
+            item {
+                OutlinedButton(
+                    onClick = {
+                        budgetViewModel.startNewCycleNow()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Start New Cycle Now")
                 }
             }
 
@@ -137,34 +221,41 @@ fun SettingsScreen(
                         Text("Clear All Transactions")
                     }
                 } else {
-                    Text(
-                        text = "Are you sure you want to clear all transactions?",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Button(
-                        onClick = {
-                            budgetViewModel.clearAllExpenses()
-                            showClearConfirmation = false
-                        },
-                        modifier = Modifier.fillMaxWidth()
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("Yes, Clear All")
-                    }
+                        Text(
+                            text = "Are you sure you want to clear all transactions?",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
 
-                    OutlinedButton(
-                        onClick = {
-                            showClearConfirmation = false
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Cancel")
+                        Button(
+                            onClick = {
+                                budgetViewModel.clearAllExpenses()
+                                showClearConfirmation = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Yes, Clear All")
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                showClearConfirmation = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Cancel")
+                        }
                     }
                 }
             }
+
             item {
                 OutlinedButton(
-                    onClick = { budgetViewModel.resetSampleExpenses() },
+                    onClick = {
+                        budgetViewModel.resetSampleExpenses()
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Reset Sample Transactions")
@@ -200,8 +291,6 @@ fun CurrencyRateSelector(
     onRateChanged: (String, Double) -> Unit
 ) {
     val currencies = listOf("SGD", "USD", "AUD", "MYR", "CNY", "UZS")
-
-
 
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)

@@ -22,6 +22,7 @@ import com.example.studentbudgetutility.viewmodel.BudgetViewModel
 import com.example.studentbudgetutility.components.BudgetStatusCard
 import com.example.studentbudgetutility.components.DailySpendingCard
 import com.example.studentbudgetutility.components.SpendingInsightsCard
+import com.example.studentbudgetutility.components.BudgetCycleCard
 
 @Composable
 fun BudgetScreen(
@@ -36,6 +37,10 @@ fun BudgetScreen(
 
     var showHistory by remember {
         mutableStateOf(true)
+    }
+
+    LaunchedEffect(Unit) {
+        budgetViewModel.checkBudgetCycle()
     }
 
     Scaffold { paddingValues ->
@@ -60,6 +65,14 @@ fun BudgetScreen(
                 ) {
                     Text("Open Settings")
                 }
+            }
+
+            item {
+                BudgetCycleCard(
+                    cycleEndDate = budgetViewModel.formattedCycleEndDate(),
+                    daysRemaining = budgetViewModel.daysRemaining,
+                    cycleLengthDays = budgetViewModel.cycleLengthDays
+                )
             }
 
             item {
