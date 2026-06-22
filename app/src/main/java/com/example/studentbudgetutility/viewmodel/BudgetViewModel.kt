@@ -84,6 +84,18 @@ class BudgetViewModel : ViewModel() {
         }
     }
 
+    fun resetConversionRates() {
+        conversionRates = mapOf(
+            "SGD" to 1.0,
+            "USD" to 0.78,
+            "AUD" to 1.20,
+            "MYR" to 3.30,
+            "CNY" to 5.60,
+            "UZS" to 10300.0
+        )
+        settingsMessage = "Conversion rates reset."
+    }
+
     fun convertAmount(amount: Double): Double {
         val rate = conversionRates[selectedCurrency] ?: 1.0
         return amount * rate

@@ -105,6 +105,17 @@ fun SettingsScreen(
             }
 
             item {
+                OutlinedButton(
+                    onClick = {
+                        budgetViewModel.resetConversionRates()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Reset Conversion Rates")
+                }
+            }
+
+            item {
                 Text(
                     text = "Transaction Controls",
                     style = MaterialTheme.typography.titleMedium
@@ -158,6 +169,8 @@ fun CurrencyRateSelector(
     onRateChanged: (String, Double) -> Unit
 ) {
     val currencies = listOf("SGD", "USD", "AUD", "MYR", "CNY", "UZS")
+
+
 
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp)
