@@ -24,11 +24,13 @@ import com.example.studentbudgetutility.components.SectionTitle
 import com.example.studentbudgetutility.components.SpendingInsightsCard
 import com.example.studentbudgetutility.components.TransactionHistory
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
+import androidx.compose.foundation.layout.Row
 
 @Composable
 fun BudgetScreen(
     budgetViewModel: BudgetViewModel,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onOpenStats: () -> Unit
 ) {
     LaunchedEffect(Unit) {
         budgetViewModel.checkBudgetCycle()
@@ -60,11 +62,23 @@ fun BudgetScreen(
             }
 
             item {
-                Button(
-                    onClick = onOpenSettings,
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Open Settings")
+                    Button(
+                        onClick = onOpenSettings,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Settings")
+                    }
+
+                    Button(
+                        onClick = onOpenStats,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Stats")
+                    }
                 }
             }
 

@@ -1,18 +1,24 @@
 package com.example.studentbudgetutility.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.studentbudgetutility.data.UserPreferencesRepository
 import com.example.studentbudgetutility.data.sampleExpenses
 import com.example.studentbudgetutility.model.Expense
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class BudgetViewModel : ViewModel() {
+class BudgetViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = UserPreferencesRepository(application)
 
     var monthlyBudget by mutableStateOf(1000.0)
         private set
@@ -49,6 +55,20 @@ class BudgetViewModel : ViewModel() {
     )
         private set
 
+    init {
+        viewModelScope.launch {
+            repository.userPreferencesFlow.collect { preferences ->
+                monthlyBudget = preferences.monthlyBudget
+                selectedCurrency = preferences.selectedCurrency
+                cycleLengthDays = preferences.cycleLengthDays
+                cycleStartTimeMillis = preferences.cycleStartTimeMillis
+                cycleEndTimeMillis = preferences.cycleEndTimeMillis
+                conversionRates = preferences.conversionRates
+                expenses = preferences.expenses
+            }
+        }
+    }
+
     val spent: Double
         get() = expenses.sumOf { it.amount }
 
@@ -71,7 +91,14 @@ class BudgetViewModel : ViewModel() {
         if (System.currentTimeMillis() >= cycleEndTimeMillis) {
             expenses = emptyList()
             cycleStartTimeMillis = System.currentTimeMillis()
-            cycleEndTimeMillis = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(cycleLengthDays.toLong())
+            cycleEndTimeMillis =
+                System.currentTimeMillis() + TimeUnit.DAYS.toMillis(cycleLengthDays.toLong())
+
+            viewModelScope.launch {
+                repository.saveExpenses(expenses)
+                repository.saveCycleDates(cycleStartTimeMillis, cycleEndTimeMillis)
+            }
+
             settingsMessage = "New budget cycle started. Transactions were reset."
         }
     }
@@ -79,7 +106,14 @@ class BudgetViewModel : ViewModel() {
     fun startNewCycleNow() {
         expenses = emptyList()
         cycleStartTimeMillis = System.currentTimeMillis()
-        cycleEndTimeMillis = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(cycleLengthDays.toLong())
+        cycleEndTimeMillis =
+            System.currentTimeMillis() + TimeUnit.DAYS.toMillis(cycleLengthDays.toLong())
+
+        viewModelScope.launch {
+            repository.saveExpenses(expenses)
+            repository.saveCycleDates(cycleStartTimeMillis, cycleEndTimeMillis)
+        }
+
         settingsMessage = "New cycle started."
     }
 
@@ -87,14 +121,27 @@ class BudgetViewModel : ViewModel() {
         if (days > 0) {
             cycleLengthDays = days
             cycleEndTimeMillis = cycleStartTimeMillis + TimeUnit.DAYS.toMillis(days.toLong())
+
+            viewModelScope.launch {
+                repository.saveCycleLengthDays(days)
+                repository.saveCycleDates(cycleStartTimeMillis, cycleEndTimeMillis)
+            }
+
             settingsMessage = "Budget cycle length updated."
         }
     }
 
     fun updateCycleStartDate(daysFromToday: Int) {
-        cycleStartTimeMillis = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(daysFromToday.toLong())
+        cycleStartTimeMillis =
+            System.currentTimeMillis() + TimeUnit.DAYS.toMillis(daysFromToday.toLong())
         cycleEndTimeMillis = cycleStartTimeMillis + TimeUnit.DAYS.toMillis(cycleLengthDays.toLong())
         expenses = emptyList()
+
+        viewModelScope.launch {
+            repository.saveExpenses(expenses)
+            repository.saveCycleDates(cycleStartTimeMillis, cycleEndTimeMillis)
+        }
+
         settingsMessage = "Budget cycle start date updated. Transactions were reset."
     }
 
@@ -110,37 +157,68 @@ class BudgetViewModel : ViewModel() {
 
     fun addExpense(expense: Expense) {
         expenses = expenses + expense
+
+        viewModelScope.launch {
+            repository.saveExpenses(expenses)
+        }
     }
 
     fun deleteExpense(expense: Expense) {
         expenses = expenses.filterNot { it.id == expense.id }
+
+        viewModelScope.launch {
+            repository.saveExpenses(expenses)
+        }
     }
 
     fun clearAllExpenses() {
         expenses = emptyList()
+
+        viewModelScope.launch {
+            repository.saveExpenses(expenses)
+        }
+
         settingsMessage = "All transactions cleared."
     }
 
     fun resetSampleExpenses() {
         expenses = sampleExpenses()
+
+        viewModelScope.launch {
+            repository.saveExpenses(expenses)
+        }
+
         settingsMessage = "Sample transactions restored."
     }
 
     fun updateMonthlyBudget(newBudget: Double) {
         if (newBudget > 0) {
             monthlyBudget = newBudget
+
+            viewModelScope.launch {
+                repository.saveMonthlyBudget(newBudget)
+            }
+
             settingsMessage = "Budget updated."
         }
     }
 
     fun updateCurrency(currency: String) {
         selectedCurrency = currency
+
+        viewModelScope.launch {
+            repository.saveSelectedCurrency(currency)
+        }
     }
 
     fun updateConversionRate(currency: String, newRate: Double) {
         if (newRate > 0) {
             conversionRates = conversionRates.toMutableMap().apply {
                 this[currency] = newRate
+            }
+
+            viewModelScope.launch {
+                repository.saveConversionRate(currency, newRate)
             }
         }
     }
@@ -154,6 +232,11 @@ class BudgetViewModel : ViewModel() {
             "CNY" to 5.60,
             "UZS" to 10300.0
         )
+
+        viewModelScope.launch {
+            repository.saveAllConversionRates(conversionRates)
+        }
+
         settingsMessage = "Conversion rates reset."
     }
 
