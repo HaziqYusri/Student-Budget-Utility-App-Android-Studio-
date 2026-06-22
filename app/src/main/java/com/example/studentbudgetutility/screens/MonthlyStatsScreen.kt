@@ -19,6 +19,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.studentbudgetutility.util.BudgetCalculator
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
 
 @Composable
@@ -31,16 +32,13 @@ fun MonthlyStatsScreen(
     }
 
     val expenses = budgetViewModel.expenses
-    val totalSpent = budgetViewModel.spent
-    val averageExpense = if (expenses.isNotEmpty()) totalSpent / expenses.size else 0.0
+    val totalSpent = BudgetCalculator.calculateSpent(expenses)
+    val averageExpense = BudgetCalculator.calculateAverageExpense(expenses)
+    val highestCategory = BudgetCalculator.findHighestCategory(expenses)
 
     val categoryTotals = expenses
         .groupBy { it.category }
         .mapValues { entry -> entry.value.sumOf { it.amount } }
-
-    val highestCategory = categoryTotals
-        .maxByOrNull { it.value }
-        ?.key ?: "No spending yet"
 
     Scaffold { paddingValues ->
         LazyColumn(
@@ -159,7 +157,7 @@ fun CategoryStatsList(
     totalSpent: Double,
     formatMoney: (Double) -> String
 ) {
-    val categories = listOf("Food", "Transport", "Entertainment", "Shopping")
+    val categories = listOf("Food", "Transport", "Entertainment", "Shopping", "Coffee")
 
     Card(
         modifier = Modifier.fillMaxWidth(),
