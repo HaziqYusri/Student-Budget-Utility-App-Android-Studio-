@@ -13,22 +13,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.studentbudgetutility.components.BudgetCard
+import com.example.studentbudgetutility.components.BudgetCycleCard
 import com.example.studentbudgetutility.components.BudgetProgressCard
+import com.example.studentbudgetutility.components.BudgetStatusCard
 import com.example.studentbudgetutility.components.CategorySummary
 import com.example.studentbudgetutility.components.CompactQuickAddCategory
+import com.example.studentbudgetutility.components.DailySpendingCard
 import com.example.studentbudgetutility.components.RecentTransactionsHeader
+import com.example.studentbudgetutility.components.SectionTitle
+import com.example.studentbudgetutility.components.SpendingInsightsCard
 import com.example.studentbudgetutility.components.TransactionHistory
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
-import com.example.studentbudgetutility.components.BudgetStatusCard
-import com.example.studentbudgetutility.components.DailySpendingCard
-import com.example.studentbudgetutility.components.SpendingInsightsCard
-import com.example.studentbudgetutility.components.BudgetCycleCard
 
 @Composable
 fun BudgetScreen(
     budgetViewModel: BudgetViewModel,
     onOpenSettings: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        budgetViewModel.checkBudgetCycle()
+    }
+
     val expenses = budgetViewModel.expenses
     val monthlyBudget = budgetViewModel.monthlyBudget
     val spent = budgetViewModel.spent
@@ -37,10 +42,6 @@ fun BudgetScreen(
 
     var showHistory by remember {
         mutableStateOf(true)
-    }
-
-    LaunchedEffect(Unit) {
-        budgetViewModel.checkBudgetCycle()
     }
 
     Scaffold { paddingValues ->
@@ -76,6 +77,10 @@ fun BudgetScreen(
             }
 
             item {
+                SectionTitle("Budget Overview")
+            }
+
+            item {
                 BudgetCard("Monthly Budget", budgetViewModel.formatMoney(monthlyBudget))
             }
 
@@ -96,6 +101,10 @@ fun BudgetScreen(
                     text = "Selected Currency: ${budgetViewModel.selectedCurrency}",
                     style = MaterialTheme.typography.labelLarge
                 )
+            }
+
+            item {
+                SectionTitle("Budget Insights")
             }
 
             item {
@@ -131,6 +140,10 @@ fun BudgetScreen(
             }
 
             item {
+                SectionTitle("Spending Breakdown")
+            }
+
+            item {
                 CategorySummary(
                     expenses = expenses,
                     formatMoney = { amount -> budgetViewModel.formatMoney(amount) }
@@ -138,10 +151,7 @@ fun BudgetScreen(
             }
 
             item {
-                Text(
-                    text = "Quick Add Expenses",
-                    style = MaterialTheme.typography.titleLarge
-                )
+                SectionTitle("Quick Add Expenses")
             }
 
             item {
