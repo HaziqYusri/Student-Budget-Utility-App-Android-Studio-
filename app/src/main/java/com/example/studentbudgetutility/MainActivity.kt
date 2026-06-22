@@ -10,7 +10,7 @@ import com.example.studentbudgetutility.screens.MonthlyStatsScreen
 import com.example.studentbudgetutility.screens.SettingsScreen
 import com.example.studentbudgetutility.ui.theme.StudentBudgetUtilityTheme
 import com.example.studentbudgetutility.viewmodel.BudgetViewModel
-
+import com.example.studentbudgetutility.screens.SplashScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +37,33 @@ class MainActivity : ComponentActivity() {
                         onBackToHome = { currentScreen = "home" }
                     )
                 }
+                var showSplash by remember { mutableStateOf(true) }
+
+                if (showSplash) {
+                    SplashScreen {
+                        showSplash = false
+                    }
+                } else {
+                    when (currentScreen) {
+                        "home" -> BudgetScreen(
+                            budgetViewModel = budgetViewModel,
+                            onOpenSettings = { currentScreen = "settings" },
+                            onOpenStats = { currentScreen = "stats" }
+                        )
+
+                        "settings" -> SettingsScreen(
+                            budgetViewModel = budgetViewModel,
+                            onBackToHome = { currentScreen = "home" }
+                        )
+
+                        "stats" -> MonthlyStatsScreen(
+                            budgetViewModel = budgetViewModel,
+                            onBackToHome = { currentScreen = "home" }
+                        )
+                    }
+                }
             }
+
         }
     }
 }
