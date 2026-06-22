@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import com.example.studentbudgetutility.util.BudgetCalculator
 
 class BudgetViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -70,16 +71,16 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     val spent: Double
-        get() = expenses.sumOf { it.amount }
+        get() = BudgetCalculator.calculateSpent(expenses)
 
     val remaining: Double
-        get() = monthlyBudget - spent
+        get() = BudgetCalculator.calculateRemaining(monthlyBudget, expenses)
 
     val safeDailySpend: Double
-        get() = remaining / cycleLengthDays
+        get() = BudgetCalculator.calculateSafeDailySpend(remaining, daysRemaining)
 
     val budgetUsedProgress: Float
-        get() = (spent / monthlyBudget).toFloat().coerceIn(0f, 1f)
+        get() = BudgetCalculator.calculateBudgetUsedProgress(monthlyBudget, spent)
 
     val daysRemaining: Int
         get() {
