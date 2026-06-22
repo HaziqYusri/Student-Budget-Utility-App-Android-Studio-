@@ -123,14 +123,45 @@ fun SettingsScreen(
             }
 
             item {
-                OutlinedButton(
-                    onClick = { budgetViewModel.clearAllExpenses() },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Clear All Transactions")
+                var showClearConfirmation by remember {
+                    mutableStateOf(false)
+                }
+
+                if (!showClearConfirmation) {
+                    OutlinedButton(
+                        onClick = {
+                            showClearConfirmation = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Clear All Transactions")
+                    }
+                } else {
+                    Text(
+                        text = "Are you sure you want to clear all transactions?",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Button(
+                        onClick = {
+                            budgetViewModel.clearAllExpenses()
+                            showClearConfirmation = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Yes, Clear All")
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            showClearConfirmation = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Cancel")
+                    }
                 }
             }
-
             item {
                 OutlinedButton(
                     onClick = { budgetViewModel.resetSampleExpenses() },
